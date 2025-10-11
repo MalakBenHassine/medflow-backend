@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,12 +42,16 @@ INSTALLED_APPS = [
     'appointments',
     'consultations',
     'billing',
+    'rest_framework',           # Ajoutez des virgules ici
+    'rest_framework_simplejwt', # et ici
+    'corsheaders',             # et ici
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    "django.middleware.common.CommonMiddleware",  # Gardez une seule instance
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -54,6 +59,18 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "medflow_backend.urls"
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  
+]
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Token d'accès court
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Token de refresh plus long
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 TEMPLATES = [
     {
@@ -88,7 +105,17 @@ DATABASES = {
     }
 }
 
-# Password validation
+# medflow_backend/settings.py
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Activez JWT
+        'rest_framework.authentication.SessionAuthentication',       # Gardez session (optionnel)
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',                # Exige l'authentification par défaut
+    ),
+}
+# Password 
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
